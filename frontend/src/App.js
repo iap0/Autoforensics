@@ -402,16 +402,16 @@ const AutoforensicsApp = () => {
                 <div className="inline-block bg-gradient-to-br from-blue-600 to-cyan-500 p-4 rounded-full mb-4">
                   <User className="w-16 h-16 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2">[Your Name]</h3>
-                <p className="text-blue-300">[Your Title/Position]</p>
+                <h3 className="text-2xl font-bold text-white mb-2">Avaneesh Kumar Pandey</h3>
+                <p className="text-blue-300">Security Student</p>
               </div>
               <div className="text-gray-300 space-y-4">
-                <p>[Add your background information, expertise in vehicular forensics, and motivation for creating this tool]</p>
+                <p>Avaneesh Kumar Pandey is a dedicated security student with a passion for vehicular forensics. He aims to enhance the security of vehicular networks through innovative analysis tools.</p>
                 <div className="grid md:grid-cols-2 gap-4 mt-6">
                   <div className="bg-slate-900 bg-opacity-50 p-4 rounded-lg">
                     <h4 className="text-white font-semibold mb-2">Contact</h4>
-                    <p className="text-sm">[Your Email]</p>
-                    <p className="text-sm">[Your Institution]</p>
+                    <p className="text-sm">avaneesh.btmtcs2128@nfsu.ac.in</p>
+                    <p className="text-sm">National Forensic Sciences University</p>
                   </div>
                   <div className="bg-slate-900 bg-opacity-50 p-4 rounded-lg">
                     <h4 className="text-white font-semibold mb-2">Research Interests</h4>
