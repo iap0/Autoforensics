@@ -402,16 +402,16 @@ const AutoforensicsApp = () => {
                 <div className="inline-block bg-gradient-to-br from-blue-600 to-cyan-500 p-4 rounded-full mb-4">
                   <User className="w-16 h-16 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2">Avaneesh Kumar Pandey</h3>
-                <p className="text-blue-300">Security Student</p>
+                <h3 className="text-2xl font-bold text-white mb-2">[Your Name]</h3>
+                <p className="text-blue-300">[Your Title/Position]</p>
               </div>
               <div className="text-gray-300 space-y-4">
-                <p>Avaneesh Kumar Pandey is a dedicated security student with a keen interest in vehicular forensics. He aims to enhance the security of vehicular networks through innovative forensic analysis tools.</p>
+                <p>[Add your background information, expertise in vehicular forensics, and motivation for creating this tool]</p>
                 <div className="grid md:grid-cols-2 gap-4 mt-6">
                   <div className="bg-slate-900 bg-opacity-50 p-4 rounded-lg">
                     <h4 className="text-white font-semibold mb-2">Contact</h4>
-                    <p className="text-sm">avaneesh.btmtcs2128@nfsu.ac.in</p>
-                    <p className="text-sm">National Forensic Sciences University</p>
+                    <p className="text-sm">[Your Email]</p>
+                    <p className="text-sm">[Your Institution]</p>
                   </div>
                   <div className="bg-slate-900 bg-opacity-50 p-4 rounded-lg">
                     <h4 className="text-white font-semibold mb-2">Research Interests</h4>
@@ -424,6 +424,18 @@ const AutoforensicsApp = () => {
             </div>
           </div>
         )}
+
+        {/* Sybil Attack Report Page */}
+        {currentPage === 'sybil-report' && analysisResult && (
+          <div></div>
+        )}
+
+        {/* Position Falsification Report Page */}
+        {currentPage === 'position-report' && analysisResult && (
+          // Similar structure to Sybil Attack Report but with Position Falsification specifics
+          <div></div>
+        )}
+      </div>
 
       {/* Loading Overlay */}
       {isAnalyzing && (
@@ -440,7 +452,7 @@ const AutoforensicsApp = () => {
       <footer className="bg-black bg-opacity-50 border-t border-blue-500 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center text-gray-400 text-sm">
-            <p>© 2025 Autoforensics. Smart Vehicular Forensics Analysis Tool.</p>
+            <p>© 2024 Autoforensics. Smart Vehicular Forensics Analysis Tool.</p>
             <p className="mt-2">Designed for cybersecurity research and forensic investigation.</p>
           </div>
         </div>
@@ -449,4 +461,4 @@ const AutoforensicsApp = () => {
   );
 };
 
-export default AutoforensicsApp; 
+export default AutoforensicsApp;
