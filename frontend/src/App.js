@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Shield, Upload, FileSearch, AlertTriangle, Download, Menu, X, Info, BookOpen, User, ArrowLeft, CheckCircle, TrendingUp, Activity, MapPin, Users } from 'lucide-react';
 
-// Mock API - Replace with actual API calls in production
+// Mock API for testing - Replace with real API in production
 const mockAPI = {
   uploadFile: async (file) => {
     return new Promise((resolve) => {
@@ -132,7 +132,6 @@ const AutoforensicsApp = () => {
       setSelectedFile(file);
       setError(null);
       
-      // Upload file immediately
       try {
         const result = await mockAPI.uploadFile(file);
         setUploadedFileData(result);
@@ -155,13 +154,13 @@ const AutoforensicsApp = () => {
       let result;
       if (type === 'sybil') {
         result = await mockAPI.analyzeSybilAttack(uploadedFileData.filename);
+        setAnalysisResult(result.report);
         setCurrentPage('sybil-report');
       } else {
         result = await mockAPI.analyzePositionFalsification(uploadedFileData.filename);
+        setAnalysisResult(result.report);
         setCurrentPage('position-report');
       }
-      
-      setAnalysisResult(result.report);
     } catch (err) {
       setError('Analysis failed. Please try again.');
     } finally {
@@ -261,7 +260,7 @@ const AutoforensicsApp = () => {
             </div>
 
             {error && (
-              <div className="bg-red-900 bg-opacity-50 border border-red-500 rounded-lg p-4 text-red-200">
+              <div className="bg-red-900 bg-opacity-50 border border-red-500 rounded-lg p-4 text-red-200 max-w-2xl mx-auto">
                 {error}
               </div>
             )}
@@ -403,16 +402,16 @@ const AutoforensicsApp = () => {
                 <div className="inline-block bg-gradient-to-br from-blue-600 to-cyan-500 p-4 rounded-full mb-4">
                   <User className="w-16 h-16 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2">[Your Name]</h3>
-                <p className="text-blue-300">[Your Title/Position]</p>
+                <h3 className="text-2xl font-bold text-white mb-2">Avaneesh Kumar Pandey</h3>
+                <p className="text-blue-300">Security Student</p>
               </div>
               <div className="text-gray-300 space-y-4">
-                <p>[Add your background information, expertise in vehicular forensics, and motivation for creating this tool]</p>
+                <p>Avaneesh Kumar Pandey is a dedicated security student with a keen interest in vehicular forensics. He aims to enhance the security of vehicular networks through innovative forensic analysis tools.</p>
                 <div className="grid md:grid-cols-2 gap-4 mt-6">
                   <div className="bg-slate-900 bg-opacity-50 p-4 rounded-lg">
                     <h4 className="text-white font-semibold mb-2">Contact</h4>
-                    <p className="text-sm">[Your Email]</p>
-                    <p className="text-sm">[Your Institution]</p>
+                    <p className="text-sm">avaneesh.btmtcs2128@nfsu.ac.in</p>
+                    <p className="text-sm">National Forensic Sciences University</p>
                   </div>
                   <div className="bg-slate-900 bg-opacity-50 p-4 rounded-lg">
                     <h4 className="text-white font-semibold mb-2">Research Interests</h4>
@@ -448,7 +447,6 @@ const AutoforensicsApp = () => {
                 <CheckCircle className="w-16 h-16 text-green-400" />
               </div>
 
-              {/* Report Metadata */}
               <div className={`${getThreatBgColor(analysisResult.threat_level)} border rounded-xl p-6 mb-6`}>
                 <div className="grid md:grid-cols-4 gap-4">
                   <div>
@@ -472,7 +470,6 @@ const AutoforensicsApp = () => {
                 </div>
               </div>
 
-              {/* Executive Summary */}
               <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
                 <h3 className="text-xl font-bold text-white mb-3 flex items-center">
                   <Activity className="w-6 h-6 mr-2 text-blue-400" />
@@ -481,7 +478,155 @@ const AutoforensicsApp = () => {
                 <p className="text-gray-300">{analysisResult.summary}</p>
               </div>
 
-              {/* Key Findings */}
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4">Analysis Metrics</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">Total Vehicles</span>
+                      <span className="text-white font-bold">{analysisResult.analysis_results.findings.total_vehicles_analyzed}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">Suspicious Identities</span>
+                      <span className="text-red-400 font-bold">{analysisResult.analysis_results.findings.suspicious_identities}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">Duplicate Behaviors</span>
+                      <span className="text-orange-400 font-bold">{analysisResult.analysis_results.findings.duplicate_behaviors_detected}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">Network Anomalies</span>
+                      <span className="text-yellow-400 font-bold">{analysisResult.analysis_results.findings.network_anomalies}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4">Detection Performance</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">Precision</span>
+                      <span className="text-green-400 font-bold">{(analysisResult.analysis_results.findings.detection_metrics.precision * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">Recall</span>
+                      <span className="text-green-400 font-bold">{(analysisResult.analysis_results.findings.detection_metrics.recall * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">F1 Score</span>
+                      <span className="text-green-400 font-bold">{(analysisResult.analysis_results.findings.detection_metrics.f1_score * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                  <TrendingUp className="w-5 h-5 mr-2 text-red-400" />
+                  Threat Indicators
+                </h3>
+                <ul className="space-y-2">
+                  {analysisResult.analysis_results.findings.threat_indicators.map((indicator, idx) => (
+                    <li key={idx} className="text-gray-300 flex items-start">
+                      <span className="text-red-400 mr-2">•</span>
+                      <span>{indicator}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                  <Users className="w-5 h-5 mr-2 text-orange-400" />
+                  Affected Nodes
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {analysisResult.analysis_results.findings.affected_nodes.map((node, idx) => (
+                    <span key={idx} className="bg-red-900 bg-opacity-30 border border-red-500 text-red-300 px-3 py-1 rounded-full text-sm font-mono">
+                      {node}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
+                <h3 className="text-lg font-semibold text-white mb-4">Security Recommendations</h3>
+                <ol className="space-y-3">
+                  {analysisResult.recommendations.map((rec, idx) => (
+                    <li key={idx} className="text-gray-300">
+                      <span className="text-blue-400 font-bold mr-2">{idx + 1}.</span>
+                      {rec}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              <div className="flex justify-center pt-4">
+                <button
+                  onClick={handleDownloadReport}
+                  className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white font-semibold py-4 px-8 rounded-lg transition-all shadow-lg flex items-center space-x-3"
+                >
+                  <Download className="w-6 h-6" />
+                  <span>Download Forensic Report (PDF)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Position Falsification Report Page */}
+        {currentPage === 'position-report' && analysisResult && (
+          <div className="space-y-6">
+            <button onClick={resetAnalysis} className="text-blue-400 hover:text-blue-300 flex items-center space-x-2">
+              <ArrowLeft className="w-5 h-5" />
+              <span>Back to Home</span>
+            </button>
+            
+            <div className="bg-slate-800 bg-opacity-50 backdrop-blur-sm border border-blue-500 rounded-2xl p-8 shadow-2xl">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-4">
+                  <div className="bg-orange-900 bg-opacity-30 p-4 rounded-xl">
+                    <MapPin className="w-12 h-12 text-orange-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-white">Position Falsification Analysis</h2>
+                    <p className="text-gray-400">Forensic Report</p>
+                  </div>
+                </div>
+                <CheckCircle className="w-16 h-16 text-green-400" />
+              </div>
+
+              <div className={`${getThreatBgColor(analysisResult.threat_level)} border rounded-xl p-6 mb-6`}>
+                <div className="grid md:grid-cols-4 gap-4">
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">Report ID</p>
+                    <p className="text-white font-mono text-sm">{analysisResult.report_id}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">File Analyzed</p>
+                    <p className="text-white truncate">{analysisResult.filename}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">Threat Level</p>
+                    <p className={`${getThreatColor(analysisResult.threat_level)} font-bold text-xl`}>
+                      {analysisResult.threat_level.toUpperCase()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">Confidence Score</p>
+                    <p className="text-white font-bold text-xl">{(analysisResult.confidence_score * 100).toFixed(1)}%</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
+                <h3 className="text-xl font-bold text-white mb-3 flex items-center">
+                  <Activity className="w-6 h-6 mr-2 text-blue-400" />
+                  Executive Summary
+                </h3>
+                <p className="text-gray-300">{analysisResult.summary}</p>
+              </div>
+
               <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6">
                   <h3 className="text-lg font-semibold text-white mb-4">Position Analysis</h3>
@@ -536,7 +681,6 @@ const AutoforensicsApp = () => {
                 </div>
               </div>
 
-              {/* Threat Indicators */}
               <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                   <TrendingUp className="w-5 h-5 mr-2 text-red-400" />
@@ -552,7 +696,6 @@ const AutoforensicsApp = () => {
                 </ul>
               </div>
 
-              {/* Affected Vehicles */}
               <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                   <Users className="w-5 h-5 mr-2 text-orange-400" />
@@ -567,7 +710,6 @@ const AutoforensicsApp = () => {
                 </div>
               </div>
 
-              {/* Geographic Hotspots */}
               <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                   <MapPin className="w-5 h-5 mr-2 text-green-400" />
@@ -595,7 +737,6 @@ const AutoforensicsApp = () => {
                 </div>
               </div>
 
-              {/* Recommendations */}
               <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
                 <h3 className="text-lg font-semibold text-white mb-4">Security Recommendations</h3>
                 <ol className="space-y-3">
@@ -608,7 +749,6 @@ const AutoforensicsApp = () => {
                 </ol>
               </div>
 
-              {/* Download Button */}
               <div className="flex justify-center pt-4">
                 <button
                   onClick={handleDownloadReport}
@@ -638,7 +778,7 @@ const AutoforensicsApp = () => {
       <footer className="bg-black bg-opacity-50 border-t border-blue-500 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center text-gray-400 text-sm">
-            <p>© 2024 Autoforensics. Smart Vehicular Forensics Analysis Tool.</p>
+            <p>© 2025 Autoforensics. Smart Vehicular Forensics Analysis Tool.</p>
             <p className="mt-2">Designed for cybersecurity research and forensic investigation.</p>
           </div>
         </div>
@@ -647,161 +787,4 @@ const AutoforensicsApp = () => {
   );
 };
 
-export default AutoforensicsApp;
-// </p>
-//               </div>
-
-//               {/* Key Findings */}
-//               <div className="grid md:grid-cols-2 gap-6 mb-6">
-//                 <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6">
-//                   <h3 className="text-lg font-semibold text-white mb-4">Analysis Metrics</h3>
-//                   <div className="space-y-3">
-//                     <div className="flex justify-between items-center">
-//                       <span className="text-gray-400">Total Vehicles</span>
-//                       <span className="text-white font-bold">{analysisResult.analysis_results.findings.total_vehicles_analyzed}</span>
-//                     </div>
-//                     <div className="flex justify-between items-center">
-//                       <span className="text-gray-400">Suspicious Identities</span>
-//                       <span className="text-red-400 font-bold">{analysisResult.analysis_results.findings.suspicious_identities}</span>
-//                     </div>
-//                     <div className="flex justify-between items-center">
-//                       <span className="text-gray-400">Duplicate Behaviors</span>
-//                       <span className="text-orange-400 font-bold">{analysisResult.analysis_results.findings.duplicate_behaviors_detected}</span>
-//                     </div>
-//                     <div className="flex justify-between items-center">
-//                       <span className="text-gray-400">Network Anomalies</span>
-//                       <span className="text-yellow-400 font-bold">{analysisResult.analysis_results.findings.network_anomalies}</span>
-//                     </div>
-//                   </div>
-//                 </div>
-
-//                 <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6">
-//                   <h3 className="text-lg font-semibold text-white mb-4">Detection Performance</h3>
-//                   <div className="space-y-3">
-//                     <div className="flex justify-between items-center">
-//                       <span className="text-gray-400">Precision</span>
-//                       <span className="text-green-400 font-bold">{(analysisResult.analysis_results.findings.detection_metrics.precision * 100).toFixed(1)}%</span>
-//                     </div>
-//                     <div className="flex justify-between items-center">
-//                       <span className="text-gray-400">Recall</span>
-//                       <span className="text-green-400 font-bold">{(analysisResult.analysis_results.findings.detection_metrics.recall * 100).toFixed(1)}%</span>
-//                     </div>
-//                     <div className="flex justify-between items-center">
-//                       <span className="text-gray-400">F1 Score</span>
-//                       <span className="text-green-400 font-bold">{(analysisResult.analysis_results.findings.detection_metrics.f1_score * 100).toFixed(1)}%</span>
-//                     </div>
-//                   </div>
-//                 </div>
-//               </div>
-
-//               {/* Threat Indicators */}
-//               <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
-//                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-//                   <TrendingUp className="w-5 h-5 mr-2 text-red-400" />
-//                   Threat Indicators
-//                 </h3>
-//                 <ul className="space-y-2">
-//                   {analysisResult.analysis_results.findings.threat_indicators.map((indicator, idx) => (
-//                     <li key={idx} className="text-gray-300 flex items-start">
-//                       <span className="text-red-400 mr-2">•</span>
-//                       <span>{indicator}</span>
-//                     </li>
-//                   ))}
-//                 </ul>
-//               </div>
-
-//               {/* Affected Nodes */}
-//               <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
-//                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-//                   <Users className="w-5 h-5 mr-2 text-orange-400" />
-//                   Affected Nodes
-//                 </h3>
-//                 <div className="flex flex-wrap gap-2">
-//                   {analysisResult.analysis_results.findings.affected_nodes.map((node, idx) => (
-//                     <span key={idx} className="bg-red-900 bg-opacity-30 border border-red-500 text-red-300 px-3 py-1 rounded-full text-sm font-mono">
-//                       {node}
-//                     </span>
-//                   ))}
-//                 </div>
-//               </div>
-
-//               {/* Recommendations */}
-//               <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
-//                 <h3 className="text-lg font-semibold text-white mb-4">Security Recommendations</h3>
-//                 <ol className="space-y-3">
-//                   {analysisResult.recommendations.map((rec, idx) => (
-//                     <li key={idx} className="text-gray-300">
-//                       <span className="text-blue-400 font-bold mr-2">{idx + 1}.</span>
-//                       {rec}
-//                     </li>
-//                   ))}
-//                 </ol>
-//               </div>
-
-//               {/* Download Button */}
-//               <div className="flex justify-center pt-4">
-//                 <button
-//                   onClick={handleDownloadReport}
-//                   className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white font-semibold py-4 px-8 rounded-lg transition-all shadow-lg flex items-center space-x-3"
-//                 >
-//                   <Download className="w-6 h-6" />
-//                   <span>Download Forensic Report (PDF)</span>
-//                 </button>
-//               </div>
-//             </div>
-//           </div>
-//         )}
-
-//         {/* Position Falsification Report Page */}
-//         {currentPage === 'position-report' && analysisResult && (
-//           <div className="space-y-6">
-//             <button onClick={resetAnalysis} className="text-blue-400 hover:text-blue-300 flex items-center space-x-2">
-//               <ArrowLeft className="w-5 h-5" />
-//               <span>Back to Home</span>
-//             </button>
-            
-//             <div className="bg-slate-800 bg-opacity-50 backdrop-blur-sm border border-blue-500 rounded-2xl p-8 shadow-2xl">
-//               <div className="flex items-center justify-between mb-6">
-//                 <div className="flex items-center space-x-4">
-//                   <div className="bg-orange-900 bg-opacity-30 p-4 rounded-xl">
-//                     <MapPin className="w-12 h-12 text-orange-400" />
-//                   </div>
-//                   <div>
-//                     <h2 className="text-3xl font-bold text-white">Position Falsification Analysis</h2>
-//                     <p className="text-gray-400">Forensic Report</p>
-//                   </div>
-//                 </div>
-//                 <CheckCircle className="w-16 h-16 text-green-400" />
-//               </div>
-
-//               {/* Report Metadata */}
-//               <div className={`${getThreatBgColor(analysisResult.threat_level)} border rounded-xl p-6 mb-6`}>
-//                 <div className="grid md:grid-cols-4 gap-4">
-//                   <div>
-//                     <p className="text-gray-400 text-sm mb-1">Report ID</p>
-//                     <p className="text-white font-mono text-sm">{analysisResult.report_id}</p>
-//                   </div>
-//                   <div>
-//                     <p className="text-gray-400 text-sm mb-1">File Analyzed</p>
-//                     <p className="text-white truncate">{analysisResult.filename}</p>
-//                   </div>
-//                   <div>
-//                     <p className="text-gray-400 text-sm mb-1">Threat Level</p>
-//                     <p className={`${getThreatColor(analysisResult.threat_level)} font-bold text-xl`}>
-//                       {analysisResult.threat_level.toUpperCase()}
-//                     </p>
-//                   </div>
-//                   <div>
-//                     <p className="text-gray-400 text-sm mb-1">Confidence Score</p>
-//                     <p className="text-white font-bold text-xl">{(analysisResult.confidence_score * 100).toFixed(1)}%</p>
-//                   </div>
-//                 </div>
-//               </div>
-
-//               {/* Executive Summary */}
-//               <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
-//                 <h3 className="text-xl font-bold text-white mb-3 flex items-center">
-//                   <Activity className="w-6 h-6 mr-2 text-blue-400" />
-//                   Executive Summary
-//                 </h3>
-//                 <p className="text-gray-300">{analysisResult.summary
+export default AutoforensicsApp; 
