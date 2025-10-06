@@ -9,7 +9,7 @@ env/
 ENV/
 *.egg-info/
 dist/
-
+build/
 
 # Flask
 instance/
@@ -31,7 +31,6 @@ backend/reports/*
 
 # Node / React
 frontend/node_modules/
-frontend/build/
 frontend/.env
 frontend/.env.local
 frontend/.env.production
