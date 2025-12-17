@@ -26,7 +26,8 @@ autoforensics/
 │   │   ├── __init__.py
 │   │   ├── file_handler.py            # File operations
 │   │   └── pdf_generator.py           # PDF generation
-│   └── uploads/                        # Temporary file storage
+│   ├── reports/                       # Storage for Report Files 
+|   └── uploads/                       # Temporary file storage
 ├── frontend/
 │   ├── public/
 │   │   └── index.html
@@ -216,13 +217,10 @@ Edit `backend/utils/pdf_generator.py` to modify:
 - **Module not found**: Run `npm install`
 - **Build fails**: Clear node_modules and reinstall
 
-## License
-
-[Your License Here]
-
 ## Contact
 
-[Your Contact Information]
+Name: Avaneesh Kumar Pandey
+Email: avaneesh.pandey2001@gmail.com
 
 ## Acknowledgments
 
