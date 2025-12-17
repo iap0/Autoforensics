@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 import os
 from datetime import datetime
 import json
+import hashlib
 
 from forensics.sybil_attack import SybilAttackDetector
 from forensics.position_falsification import PositionFalsificationDetector
@@ -34,33 +35,50 @@ def health_check():
 
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
-    """Handle file upload"""
+    """Handle file upload with case details"""
     try:
         if 'file' not in request.files:
             return jsonify({'error': 'No file provided'}), 400
-        
+
         file = request.files['file']
-        
+
         if file.filename == '':
             return jsonify({'error': 'No file selected'}), 400
-        
+
         if file and file_handler.allowed_file(file.filename):
             filename = secure_filename(file.filename)
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             unique_filename = f"{timestamp}_{filename}"
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-            
+
+            # Save file to uploads
             file.save(filepath)
-            
+
+            # Calculate SHA256 hash of the saved file (backend authoritative)
+            sha256 = hashlib.sha256()
+            with open(filepath, 'rb') as fh:
+                for chunk in iter(lambda: fh.read(8192), b''):
+                    sha256.update(chunk)
+            file_hash = sha256.hexdigest()
+
+            # File size in bytes
+            file_size = os.path.getsize(filepath)
+
+            # Optional case details sent from frontend
+            case_details = request.form.get('case_details') or request.form.get('case') or None
+
             return jsonify({
                 'success': True,
                 'filename': unique_filename,
                 'original_filename': filename,
+                'hash': file_hash,
+                'size': file_size,
+                'case_details': case_details,
                 'message': 'File uploaded successfully'
             }), 200
         else:
             return jsonify({'error': 'Invalid file type'}), 400
-            
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -76,6 +94,28 @@ def analyze_sybil_attack():
             return jsonify({'error': 'No filename provided'}), 400
         
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+        # Recalculate backend-authoritative file hash and size
+        sha256 = hashlib.sha256()
+        with open(filepath, 'rb') as fh:
+            for chunk in iter(lambda: fh.read(8192), b''):
+                sha256.update(chunk)
+        file_hash = sha256.hexdigest()
+        file_size = os.path.getsize(filepath)
+
+        # Case details may be sent in JSON
+        case_details = data.get('case_details') or data.get('case') or None
+
+        # Recalculate backend-authoritative file hash and size
+        sha256 = hashlib.sha256()
+        with open(filepath, 'rb') as fh:
+            for chunk in iter(lambda: fh.read(8192), b''):
+                sha256.update(chunk)
+        file_hash = sha256.hexdigest()
+        file_size = os.path.getsize(filepath)
+
+        # Case details may be sent in JSON
+        case_details = data.get('case_details') or data.get('case') or None
         
         if not os.path.exists(filepath):
             return jsonify({'error': 'File not found'}), 404
@@ -92,12 +132,13 @@ def analyze_sybil_attack():
             'filename': data.get('original_filename', filename),
             'timestamp': datetime.now().isoformat(),
             'analysis_results': analysis_results,
-            'report_id': f"SYBIL_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            'report_id': f"SYBIL_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+            # 'caseNumber': case_details.get('caseNumber') if case_details else 1212,
         }
         
         return jsonify({
             'success': True,
-            'report': report_data
+            'report': report_data, 'file_hash': file_hash, 'file_size': file_size, 'case_details': case_details
         }), 200
         
     except Exception as e:
@@ -115,6 +156,17 @@ def analyze_position_falsification():
             return jsonify({'error': 'No filename provided'}), 400
         
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+        # Recalculate backend-authoritative file hash and size
+        sha256 = hashlib.sha256()
+        with open(filepath, 'rb') as fh:
+            for chunk in iter(lambda: fh.read(8192), b''):
+                sha256.update(chunk)
+        file_hash = sha256.hexdigest()
+        file_size = os.path.getsize(filepath)
+
+        # Case details may be sent in JSON
+        case_details = data.get('case_details') or data.get('case') or None
         
         if not os.path.exists(filepath):
             return jsonify({'error': 'File not found'}), 404
@@ -131,12 +183,13 @@ def analyze_position_falsification():
             'filename': data.get('original_filename', filename),
             'timestamp': datetime.now().isoformat(),
             'analysis_results': analysis_results,
-            'report_id': f"POSITION_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            'report_id': f"POSITION_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+            # 'caseNumber': case_details.get('caseNumber') if case_details else 1212,
         }
         
         return jsonify({
             'success': True,
-            'report': report_data
+            'report': report_data, 'file_hash': file_hash, 'file_size': file_size, 'case_details': case_details
         }), 200
         
     except Exception as e:
@@ -172,6 +225,17 @@ def cleanup_file(filename):
     """Clean up uploaded file after analysis"""
     try:
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+        # Recalculate backend-authoritative file hash and size
+        sha256 = hashlib.sha256()
+        with open(filepath, 'rb') as fh:
+            for chunk in iter(lambda: fh.read(8192), b''):
+                sha256.update(chunk)
+        file_hash = sha256.hexdigest()
+        file_size = os.path.getsize(filepath)
+
+        # Case details may be sent in JSON
+        case_details = data.get('case_details') or data.get('case') or None
         
         if os.path.exists(filepath):
             os.remove(filepath)

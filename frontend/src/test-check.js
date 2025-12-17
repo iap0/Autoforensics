@@ -1,6 +1,132 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, Upload, FileSearch, AlertTriangle, Download, Menu, X, Info, BookOpen, User, ArrowLeft, CheckCircle, TrendingUp, Activity, MapPin, Users, Calendar, FileText, UserCircle, Briefcase } from 'lucide-react';
 import api from './services/api';
+// Mock API for testing - Replace with real API in production
+const mockAPI = {
+  uploadFile: async (file, formData) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Simulate hash generation
+        const mockHash = 'a7f3c9e2b1d4f8e6c5a2b9d7e3f1c8a4b6d2e9f7c5a3b1d8e6f4c2a9b7d5e3f1';
+        resolve({
+          success: true,
+          filename: `${Date.now()}_${file.name}`,
+          original_filename: file.name,
+          file_hash: mockHash,
+          file_size: file.size,
+          case_details: formData
+        });
+      }, 1000);
+    });
+  },
+  
+  analyzeSybilAttack: async (uploadData) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          success: true,
+          report: {
+            attack_type: 'Sybil Attack',
+            filename: uploadData.original_filename,
+            file_hash: uploadData.file_hash,
+            file_size: uploadData.file_size,
+            case_details: uploadData.case_details,
+            timestamp: new Date().toISOString(),
+            threat_level: 'Medium',
+            confidence_score: 0.87,
+            report_id: `SYBIL_${Date.now()}`,
+            analysis_results: {
+              findings: {
+                total_vehicles_analyzed: 150,
+                suspicious_identities: 12,
+                duplicate_behaviors_detected: 8,
+                network_anomalies: 5,
+                threat_indicators: [
+                  'Multiple vehicles with similar MAC addresses',
+                  'Synchronized message timing patterns',
+                  'Identical certificate chains detected',
+                  'Abnormal message frequency from suspected nodes'
+                ],
+                affected_nodes: ['Node_A45', 'Node_B72', 'Node_C89'],
+                detection_metrics: {
+                  precision: 0.87,
+                  recall: 0.82,
+                  f1_score: 0.84
+                }
+              }
+            },
+            summary: 'Moderate Sybil attack indicators found. Some suspicious identity patterns detected that warrant further investigation and monitoring.',
+            recommendations: [
+              'Implement robust identity verification mechanisms',
+              'Deploy distributed trust management systems',
+              'Monitor for duplicate MAC addresses and certificate chains',
+              'Implement rate limiting for message broadcasts',
+              'Use cryptographic authentication for all V2X communications'
+            ]
+          }
+        });
+      }, 3000);
+    });
+  },
+  
+  analyzePositionFalsification: async (uploadData) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          success: true,
+          report: {
+            attack_type: 'Position Falsification',
+            filename: uploadData.original_filename,
+            file_hash: uploadData.file_hash,
+            file_size: uploadData.file_size,
+            case_details: uploadData.case_details,
+            timestamp: new Date().toISOString(),
+            threat_level: 'High',
+            confidence_score: 0.91,
+            report_id: `POSITION_${Date.now()}`,
+            analysis_results: {
+              findings: {
+                total_positions_analyzed: 2847,
+                anomalous_positions: 23,
+                impossible_movements: 7,
+                speed_violations: 15,
+                off_road_positions: 11,
+                gps_spoofing_indicators: 4,
+                threat_indicators: [
+                  'Vehicle exceeding physical speed limits detected',
+                  'Impossible position jumps (teleportation) identified',
+                  'GPS coordinates off valid road network',
+                  'Suspiciously consistent GPS accuracy values',
+                  'Temporal gaps in position reporting'
+                ],
+                affected_vehicles: ['VEH_X12', 'VEH_Y34', 'VEH_Z56'],
+                geographic_hotspots: [
+                  { lat: 23.0225, lon: 72.5714, incident_count: 8 },
+                  { lat: 23.0330, lon: 72.5850, incident_count: 5 }
+                ],
+                detection_metrics: {
+                  precision: 0.91,
+                  recall: 0.88,
+                  f1_score: 0.89,
+                  false_positive_rate: 0.05
+                }
+              }
+            },
+            summary: 'Significant position falsification detected. Multiple vehicles broadcasting false GPS coordinates. This poses serious safety and security risks to the vehicular network.',
+            recommendations: [
+              'URGENT: Flag and isolate vehicles with falsified positions',
+              'Notify traffic management systems of compromised data',
+              'Implement emergency position verification protocols',
+              'Implement GPS signal authentication mechanisms',
+              'Deploy multi-source location verification',
+              'Cross-reference position data with neighboring vehicles'
+            ]
+          }
+        });
+      }, 3000);
+    });
+  }
+};
 
 const AutoforensicsApp = () => {
   const [currentPage, setCurrentPage] = useState('home');
@@ -56,14 +182,17 @@ const AutoforensicsApp = () => {
     }
   };
 
-
-
   const handleAnalysis = async (type) => {
+    //enable form validation later 
+    //if (!validateForm()) {
+    //   return;
+    // }
+    
     setIsAnalyzing(true);
     setError(null);
-
+    
     try {
-      // Prepare form data
+      // First upload file with form data
       const formData = {
         caseNumber,
         caseDate,
@@ -71,152 +200,36 @@ const AutoforensicsApp = () => {
         investigatorDesignation,
         reportDate
       };
-      //enable form validation later 
-      if (!validateForm()) {
-         return;
-      }
 
-      // Upload file with form data
-      const uploadResult = await api.uploadFile(selectedFile, formData);
-      setUploadedFileData(uploadResult);
+      // const uploadResult = await mockAPI.uploadFile(selectedFile, formData);
+      
+        const uploadResult = await api.uploadFile(selectedFile, formData); // Replace with actual API call
+        setUploadedFileData(uploadResult);
+    
 
+      // Then analyze
       let result;
       if (type === 'sybil') {
-        // Call backend analysis
         result = await api.analyzeSybilAttack(uploadResult.filename);
-        console.log('Sybil Analysis Result:', result);
-
-        // Transform backend response to match frontend expectations
-        const reportData = result.report || result;
-
-        setAnalysisResult({
-          // Case details from form
-          caseNumber: reportData.caseNumber || formData.caseNumber,
-          caseDate: formData.caseDate,
-          investigatorName: formData.investigatorName,
-          investigatorDesignation: formData.investigatorDesignation,
-          reportDate: formData.reportDate,
-
-          // File information
-          filename: reportData.filename,
-          file_hash: result.file_hash,
-          file_size: result.file_size,
-
-          // Report metadata
-          report_id: reportData.report_id,
-          timestamp: reportData.timestamp,
-          attack_type: reportData.attack_type,
-
-          // Analysis results
-          threat_level: reportData.analysis_results?.threat_level || 'Low',
-          confidence_score: reportData.analysis_results?.confidence_score || 0,
-          summary: reportData.analysis_results?.findings?.threat_indicators?.join('. ') || 'Analysis completed',
-
-          // Recommendations (generate if not provided)
-          recommendations: reportData.analysis_results?.recommendations || [
-            'Review and verify vehicle identity credentials',
-            'Implement additional authentication layers',
-            'Monitor for suspicious behavioral patterns',
-            'Deploy enhanced security protocols',
-            'Investigate flagged vehicles and nodes'
-          ],
-
-          // Findings
-          analysis_results: {
-            findings: {
-              total_vehicles_analyzed: reportData.analysis_results?.findings?.total_unique_vehicles || 0,
-              suspicious_identities: reportData.analysis_results?.findings?.behavior_clones?.length || 0,
-              duplicate_behaviors_detected: reportData.analysis_results?.findings?.cloned_trajectory_nodes?.length || 0,
-              network_anomalies: reportData.analysis_results?.findings?.position_conflicts?.length || 0,
-              threat_indicators: reportData.analysis_results?.findings?.threat_indicators || ['No specific threats identified'],
-              affected_nodes: reportData.analysis_results?.findings?.behavior_clones?.slice(0, 20).map(clone => `Node_${clone[0]}`) || [],
-            }
-          }
-        });
-
+        console.log('reply Data:', result);
+        setAnalysisResult(result.report);
+        // console.log('Analyzing Sybil Attack with uploaded file data:', uploadResult,selectedFile);
         setCurrentPage('sybil-report');
-
       } else {
-        // Position Falsification Analysis
         result = await api.analyzePositionFalsification(uploadResult.filename);
-        console.log('Position Analysis Result:', result);
-
-        const reportData = result.report || result;
-
-        setAnalysisResult({
-          // Case details from form
-          caseNumber: formData.caseNumber||reportData.caseNumber,
-          caseDate: formData.caseDate,
-          investigatorName: formData.investigatorName,
-          investigatorDesignation: formData.investigatorDesignation,
-          reportDate: formData.reportDate,
-
-          // File information
-          filename: reportData.filename,
-          file_hash: result.file_hash,
-          file_size: result.file_size,
-
-          // Report metadata
-          report_id: reportData.report_id,
-          timestamp: reportData.timestamp,
-          attack_type: reportData.attack_type,
-
-          // Analysis results
-          threat_level: reportData.analysis_results?.threat_level || 'Unknown',
-          confidence_score: reportData.analysis_results?.confidence_score || 0,
-          summary: reportData.analysis_results?.findings?.threat_indicators?.join('. ') || 'Analysis completed',
-
-          // Recommendations
-          recommendations: reportData.analysis_results?.recommendations || [
-            'Verify signal authenticity',
-            'Cross-reference with neighboring vehicle data',
-            'Implement multi-source location verification',
-            'Flag vehicles with suspicious position patterns',
-            'Deploy enhanced position monitoring protocols'
-          ],
-
-          // Findings
-          analysis_results: {
-            findings: {
-              total_positions_analyzed: reportData.analysis_results?.findings?.total_positions_analyzed || 0,
-              anomalous_positions: reportData.analysis_results?.findings?.anomalous_positions || 0,
-              impossible_movements: reportData.analysis_results?.findings?.impossible_movements || 0,
-              speed_violations: reportData.analysis_results?.findings?.speed_violations || 0,
-              off_road_positions: reportData.analysis_results?.findings?.off_road_positions || 0,
-              gps_spoofing_indicators: reportData.analysis_results?.findings?.gps_spoofing_indicators || 0,
-              threat_indicators: reportData.analysis_results?.findings?.threat_indicators || ['No specific threats identified'],
-              affected_vehicles: reportData.analysis_results?.findings?.affected_vehicles?.slice(0, 20) || [],
-              geographic_hotspots: reportData.analysis_results?.findings?.geographic_hotspots || []
-            }
-          }
-        });
-
+        setAnalysisResult(result.report);
         setCurrentPage('position-report');
       }
     } catch (err) {
-      console.error('Analysis error:', err);
-      setError(`Analysis failed: ${err.message || 'Please try again.'}`);
+      setError('Analysis failed. Please try again.');
     } finally {
       setIsAnalyzing(false);
     }
   };
 
-
-  const handleDownloadReport = async () => {
-  if (!analysisResult) {
-    setError('No report data available');
-    return;
-  }
-  try {
-    setIsAnalyzing(true);
-    const reportType = analysisResult.attack_type === 'Sybil Attack' ? 'sybil' : 'position';
-    await api.downloadPDFReport(analysisResult, reportType);
-  } catch (err) {
-    setError('Failed to download PDF');
-  } finally {
-    setIsAnalyzing(false);
-  }
-};
+  const handleDownloadReport = () => {
+    alert('In production, this will download the PDF report with all case details and file hash.');
+  };
 
   const resetAnalysis = () => {
     setSelectedFile(null);
@@ -416,7 +429,7 @@ const AutoforensicsApp = () => {
                   <Upload className="w-16 h-16 text-blue-400" />
                 </div>
                 <h3 className="text-2xl font-bold text-white">Upload Evidence File</h3>
-
+                
                 <div className="max-w-md mx-auto">
                   <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-blue-500 border-dashed rounded-xl cursor-pointer bg-slate-900 bg-opacity-50 hover:bg-opacity-70 transition-all">
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -478,7 +491,7 @@ const AutoforensicsApp = () => {
                     Identify vehicles broadcasting false location data to manipulate traffic systems or evade detection.
                   </p>
                   <ul className="space-y-2 text-sm text-gray-400">
-                    <li>• Coordinate validation</li>
+                    <li>• GPS coordinate validation</li>
                     <li>• Movement pattern analysis</li>
                     <li>• Location consistency check</li>
                   </ul>
@@ -553,16 +566,16 @@ const AutoforensicsApp = () => {
                 <div className="inline-block bg-gradient-to-br from-blue-600 to-cyan-500 p-4 rounded-full mb-4">
                   <User className="w-16 h-16 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2">Avaneesh Kumar Pandey</h3>
-                <p className="text-blue-300">Student</p>
+                <h3 className="text-2xl font-bold text-white mb-2">[Your Name]</h3>
+                <p className="text-blue-300">[Your Title/Position]</p>
               </div>
               <div className="text-gray-300 space-y-4">
-                <p>Student of final year B.Tech-M.Tech CSE</p>
+                <p>[Add your background information, expertise in vehicular forensics, and motivation for creating this tool]</p>
                 <div className="grid md:grid-cols-2 gap-4 mt-6">
                   <div className="bg-slate-900 bg-opacity-50 p-4 rounded-lg">
                     <h4 className="text-white font-semibold mb-2">Contact</h4>
-                    <p className="text-sm">avaneesh.bmcs2128@nfsu.ac.in</p>
-                    <p className="text-sm">National Forensic Sciences University</p>
+                    <p className="text-sm">[Your Email]</p>
+                    <p className="text-sm">[Your Institution]</p>
                   </div>
                   <div className="bg-slate-900 bg-opacity-50 p-4 rounded-lg">
                     <h4 className="text-white font-semibold mb-2">Research Interests</h4>
@@ -579,92 +592,93 @@ const AutoforensicsApp = () => {
         {/* Sybil Attack Report Page */}
         {currentPage === 'sybil-report' && analysisResult && (
           <div className="space-y-6">
-          <button onClick={resetAnalysis} className="text-blue-400 hover:text-blue-300 flex items-center space-x-2">
-            <ArrowLeft className="w-5 h-5" />
-            <span>Back to Home</span>
-          </button>
-                      
-          <div className="bg-slate-800 bg-opacity-50 backdrop-blur-sm border border-blue-500 rounded-2xl p-8 shadow-2xl">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-4">
-                <div className="bg-red-900 bg-opacity-30 p-4 rounded-xl">
-                  <AlertTriangle className="w-12 h-12 text-red-400" />
+            <button onClick={resetAnalysis} className="text-blue-400 hover:text-blue-300 flex items-center space-x-2">
+              <ArrowLeft className="w-5 h-5" />
+              <span>Back to Home</span>
+            </button>
+            
+            <div className="bg-slate-800 bg-opacity-50 backdrop-blur-sm border border-blue-500 rounded-2xl p-8 shadow-2xl">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-4">
+                  <div className="bg-red-900 bg-opacity-30 p-4 rounded-xl">
+                    <AlertTriangle className="w-12 h-12 text-red-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold text-white">Sybil Attack Analysis</h2>
+                    <p className="text-gray-400">Forensic Report</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-3xl font-bold text-white">Sybil Attack Analysis</h2>
-                  <p className="text-gray-400">Forensic Report</p>
-                </div>
+                <CheckCircle className="w-16 h-16 text-green-400" />
               </div>
-              <CheckCircle className="w-16 h-16 text-green-400" />
-            </div>
-          </div>
 
-            <div className="bg-blue-900 bg-opacity-30 border border-blue-500 rounded-xl p-6 mb-6">
-              <h3 className="text-xl font-bold text-white mb-4">Case Information</h3>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Case Number</p>
-                  <p className="text-white font-semibold">{analysisResult.caseNumber || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Case Date</p>
-                  <p className="text-white font-semibold">{analysisResult.caseDate || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Investigator</p>
-                  <p className="text-white font-semibold">{analysisResult.investigatorName || 'N/A'}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Designation</p>
-                  <p className="text-white font-semibold">{analysisResult.investigatorDesignation || 'N/A'}</p>
-                </div>
-                <div className="md:col-span-2">
-                  <p className="text-gray-400 text-sm mb-1">Report Date</p>
-                  <p className="text-white font-semibold">{analysisResult.reportDate || 'N/A'}</p>
+              {/* Case Details Section */}
+              <div className="bg-blue-900 bg-opacity-30 border border-blue-500 rounded-xl p-6 mb-6">
+                <h3 className="text-xl font-bold text-white mb-4">Case Information</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">Case Number</p>
+                    <p className="text-white font-semibold">{analysisResult.report.caseNumber}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">Case Date</p>
+                    <p className="text-white font-semibold">{analysisResult.case_details.caseDate}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">Investigator</p>
+                    <p className="text-white font-semibold">{analysisResult.case_details.investigatorName}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">Designation</p>
+                    <p className="text-white font-semibold">{analysisResult.case_details.investigatorDesignation}</p>
+                  </div>
+                  <div className="md:col-span-2">
+                    <p className="text-gray-400 text-sm mb-1">Report Date</p>
+                    <p className="text-white font-semibold">{analysisResult.case_details.reportDate}</p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* File Information Section */}
-            <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
-              <h3 className="text-xl font-bold text-white mb-4">Evidence File Information</h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">File Name</p>
-                  <p className="text-white font-mono text-sm break-all">{analysisResult.filename}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">File Size</p>
-                  <p className="text-white font-semibold">{formatFileSize(analysisResult.file_size)}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">File Hash (SHA-256)</p>
-                  <p className="text-green-400 font-mono text-xs break-all">{analysisResult.file_hash}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Report ID</p>
-                  <p className="text-white font-mono text-sm">{analysisResult.report_id}</p>
+              {/* File Information Section */}
+              <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
+                <h3 className="text-xl font-bold text-white mb-4">Evidence File Information</h3>
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">File Name</p>
+                    <p className="text-white font-mono text-sm break-all">{analysisResult.filename}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">File Size</p>
+                    <p className="text-white font-semibold">{formatFileSize(analysisResult.file_size)}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">File Hash (SHA-256)</p>
+                    <p className="text-green-400 font-mono text-xs break-all">{analysisResult.file_hash}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">Report ID</p>
+                    <p className="text-white font-mono text-sm">{analysisResult.report_id}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-            {/* Threat Level Section */}
-            <div className={`${getThreatBgColor(analysisResult.threat_level)} border rounded-xl p-6 mb-6`}>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Threat Level</p>
+
+              {/* Threat Level Section */}
+              <div className={`${getThreatBgColor(analysisResult.threat_level)} border rounded-xl p-6 mb-6`}>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">Threat Level</p>
                     <p className={`${getThreatColor(analysisResult.threat_level)} font-bold text-3xl`}>
                       {analysisResult.threat_level.toUpperCase()}
                     </p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm mb-1">Confidence Score</p>
-                  <p className="text-white font-bold text-3xl">{(analysisResult.confidence_score * 100).toFixed(1)}%</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm mb-1">Confidence Score</p>
+                    <p className="text-white font-bold text-3xl">{(analysisResult.confidence_score * 100).toFixed(1)}%</p>
+                  </div>
                 </div>
               </div>
-            </div>
-                    
+
               {/* Executive Summary */}
-            <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
+              <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
                 <h3 className="text-xl font-bold text-white mb-3 flex items-center">
                   <Activity className="w-6 h-6 mr-2 text-blue-400" />
                   Executive Summary
@@ -672,23 +686,7 @@ const AutoforensicsApp = () => {
                 <p className="text-gray-300">{analysisResult.summary}</p>
               </div>
 
-                 {/* Threat Indicators */}
-              <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
-                  <TrendingUp className="w-5 h-5 mr-2 text-red-400" />
-                  Threat Indicators
-                </h3>
-                <ul className="space-y-2">
-                  {analysisResult.analysis_results.findings.threat_indicators.map((indicator, idx) => (
-                    <li key={idx} className="text-gray-300 flex items-start">
-                      <span className="text-red-400 mr-2">•</span>
-                      <span>{indicator}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-               {/* Key Findings */}
+              {/* Key Findings */}
               <div className="grid md:grid-cols-2 gap-6 mb-6">
                 <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6">
                   <h3 className="text-lg font-semibold text-white mb-4">Analysis Metrics</h3>
@@ -712,10 +710,42 @@ const AutoforensicsApp = () => {
                   </div>
                 </div>
 
-                
+                <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4">Detection Performance</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">Precision</span>
+                      <span className="text-green-400 font-bold">{(analysisResult.analysis_results.findings.detection_metrics.precision * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">Recall</span>
+                      <span className="text-green-400 font-bold">{(analysisResult.analysis_results.findings.detection_metrics.recall * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">F1 Score</span>
+                      <span className="text-green-400 font-bold">{(analysisResult.analysis_results.findings.detection_metrics.f1_score * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-               {/* Affected Nodes */}
+              {/* Threat Indicators */}
+              <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+                  <TrendingUp className="w-5 h-5 mr-2 text-red-400" />
+                  Threat Indicators
+                </h3>
+                <ul className="space-y-2">
+                  {analysisResult.analysis_results.findings.threat_indicators.map((indicator, idx) => (
+                    <li key={idx} className="text-gray-300 flex items-start">
+                      <span className="text-red-400 mr-2">•</span>
+                      <span>{indicator}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Affected Nodes */}
               <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6 mb-6">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                   <Users className="w-5 h-5 mr-2 text-orange-400" />
@@ -743,20 +773,19 @@ const AutoforensicsApp = () => {
                 </ol>
               </div>
 
-        {/* Download Button */}
-                      <div className="flex justify-center pt-4">
-                        <button
-                          onClick={handleDownloadReport}
-                          className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white font-semibold py-4 px-8 rounded-lg transition-all shadow-lg flex items-center space-x-3"
-                        >
-                          <Download className="w-6 h-6" />
-                          <span>Download Complete Report (PDF)</span>
-                        </button>
-                      </div>
-                    </div>
+              {/* Download Button */}
+              <div className="flex justify-center pt-4">
+                <button
+                  onClick={handleDownloadReport}
+                  className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white font-semibold py-4 px-8 rounded-lg transition-all shadow-lg flex items-center space-x-3"
+                >
+                  <Download className="w-6 h-6" />
+                  <span>Download Complete Report (PDF)</span>
+                </button>
+              </div>
+            </div>
+          </div>
         )}
-
-
 
         {/* Position Falsification Report Page */}
         {currentPage === 'position-report' && analysisResult && (
@@ -765,7 +794,7 @@ const AutoforensicsApp = () => {
               <ArrowLeft className="w-5 h-5" />
               <span>Back to Home</span>
             </button>
-
+            
             <div className="bg-slate-800 bg-opacity-50 backdrop-blur-sm border border-blue-500 rounded-2xl p-8 shadow-2xl">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-4">
@@ -786,23 +815,23 @@ const AutoforensicsApp = () => {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-gray-400 text-sm mb-1">Case Number</p>
-                    <p className="text-white font-semibold">{analysisResult.caseNumber}</p>
+                    <p className="text-white font-semibold">{analysisResult.case_details.caseNumber}</p>
                   </div>
                   <div>
                     <p className="text-gray-400 text-sm mb-1">Case Date</p>
-                    <p className="text-white font-semibold">{analysisResult.caseDate}</p>
+                    <p className="text-white font-semibold">{analysisResult.case_details.caseDate}</p>
                   </div>
                   <div>
                     <p className="text-gray-400 text-sm mb-1">Investigator</p>
-                    <p className="text-white font-semibold">{analysisResult.investigatorName}</p>
+                    <p className="text-white font-semibold">{analysisResult.case_details.investigatorName}</p>
                   </div>
                   <div>
                     <p className="text-gray-400 text-sm mb-1">Designation</p>
-                    <p className="text-white font-semibold">{analysisResult.investigatorDesignation}</p>
+                    <p className="text-white font-semibold">{analysisResult.case_details.investigatorDesignation}</p>
                   </div>
                   <div className="md:col-span-2">
                     <p className="text-gray-400 text-sm mb-1">Report Date</p>
-                    <p className="text-white font-semibold">{analysisResult.reportDate}</p>
+                    <p className="text-white font-semibold">{analysisResult.case_details.reportDate}</p>
                   </div>
                 </div>
               </div>
@@ -880,9 +909,34 @@ const AutoforensicsApp = () => {
                       <span className="text-gray-400">Off-Road Positions</span>
                       <span className="text-yellow-400 font-bold">{analysisResult.analysis_results.findings.off_road_positions}</span>
                     </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">GPS Spoofing</span>
+                      <span className="text-red-400 font-bold">{analysisResult.analysis_results.findings.gps_spoofing_indicators}</span>
+                    </div>
                   </div>
                 </div>
 
+                <div className="bg-slate-900 bg-opacity-50 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-white mb-4">Detection Performance</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">Precision</span>
+                      <span className="text-green-400 font-bold">{(analysisResult.analysis_results.findings.detection_metrics.precision * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">Recall</span>
+                      <span className="text-green-400 font-bold">{(analysisResult.analysis_results.findings.detection_metrics.recall * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">F1 Score</span>
+                      <span className="text-green-400 font-bold">{(analysisResult.analysis_results.findings.detection_metrics.f1_score * 100).toFixed(1)}%</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">False Positive Rate</span>
+                      <span className="text-blue-400 font-bold">{(analysisResult.analysis_results.findings.detection_metrics.false_positive_rate * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Threat Indicators */}
@@ -987,8 +1041,8 @@ const AutoforensicsApp = () => {
       <footer className="bg-black bg-opacity-50 border-t border-blue-500 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center text-gray-400 text-sm">
-            <p>© 2025 Autoforensics. Smart Vehicular Forensics Analysis Tool.</p>
-            <p className="mt-2">Designed for research and forensic investigation.</p>
+            <p>© 2024 Autoforensics. Smart Vehicular Forensics Analysis Tool.</p>
+            <p className="mt-2">Designed for cybersecurity research and forensic investigation.</p>
           </div>
         </div>
       </footer>

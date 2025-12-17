@@ -52,7 +52,7 @@ const api = {
     try {
       const response = await apiClient.post('/analyze/sybil', {
         filename,
-        original_filename: originalFilename,
+        // original_filename: originalFilename,
       });
 
       return response.data;
@@ -68,7 +68,7 @@ const api = {
     try {
       const response = await apiClient.post('/analyze/position', {
         filename,
-        original_filename: originalFilename,
+        // original_filename: originalFilename,
       });
 
       return response.data;
