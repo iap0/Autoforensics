@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://autoforensics-backend.onrender.com';
+const API_BASE_URL = 'https://autoforensics-backend.onrender.com/api';
 
 // Create axios instance with default config
 const apiClient = axios.create({
